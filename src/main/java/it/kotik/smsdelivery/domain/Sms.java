@@ -10,9 +10,11 @@ public class Sms {
     public String userId;
 
     @NotBlank(message = "Source number is required")
+    @PhoneNumberConstraint
     public String sourceNumber;
 
     @NotBlank(message = "Destination number is required")
+    @PhoneNumberConstraint
     public String destNumber;
 
     @NotBlank(message = "Body is required")

@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.print.attribute.standard.Media;
-
 import static org.mockito.internal.util.StringUtil.join;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,7 +28,7 @@ public class SmsControllerTest {
     SmsRepository smsRepository;
 
     @Test
-    public void should_reject_invalid_input() throws Exception {
+    public void should_check_required_fields() throws Exception {
         RequestBuilder builder = post("/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -46,4 +44,21 @@ public class SmsControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Body is required")));
     }
 
+    @Test
+    public void should_check_numbers() throws Exception {
+        RequestBuilder builder = post("/v1/sms/create")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(join("{",
+                        "\"userId\": \"userId\",",
+                        "\"sourceNumber\": \"a123\",",
+                        "\"destNumber\": \"+22aaa\", ",
+                        "\"body\": \"i'm an sms text\"",
+                        "}"));
+
+        mockMvc.perform(builder)
+                .andExpect(status().is(400))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.sourceNumber", Is.is("Invalid phone number")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.destNumber", Is.is("Invalid phone number")));
+    }
 }
