@@ -34,14 +34,16 @@ public class SmsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
                         "\"userId\": \"userId\",",
-                        "\"sourceNumber\": \"1\",",
-                        "\"destNumber\": \"2\", ",
+                        "\"sourceNumber\": \"\",",
+                        "\"destNumber\": \"\", ",
                         "\"body\": \"\"",
                         "}"));
 
         mockMvc.perform(builder)
                 .andExpect(status().is(400))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Body is required")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Body is required")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.destNumber", Is.is("Destination number is required")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.sourceNumber", Is.is("Source number is required")));
     }
 
     @Test
@@ -60,5 +62,39 @@ public class SmsControllerTest {
                 .andExpect(status().is(400))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.sourceNumber", Is.is("Invalid phone number")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.destNumber", Is.is("Invalid phone number")));
+    }
+
+    @Test
+    public void should_check_body() throws Exception {
+        RequestBuilder builder = post("/v1/sms/create")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(join("{",
+                        "\"userId\": \"userId\",",
+                        "\"sourceNumber\": \"+00117561791\",",
+                        "\"destNumber\": \"+00216851750\", ",
+                        "\"body\": \"test ®\"",
+                        "}"));
+
+        mockMvc.perform(builder)
+                .andExpect(status().is(400))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Invalid body")));
+    }
+
+    @Test
+    public void should_create_sms_as_expected() throws Exception {
+        RequestBuilder builder = post("/v1/sms/create")
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(join("{",
+                        "\"userId\": \"userId\",",
+                        "\"sourceNumber\": \"+00117561791\",",
+                        "\"destNumber\": \"+00216851750\", ",
+                        "\"body\": \"test Ω\"",
+                        "}"));
+
+        mockMvc.perform(builder)
+                .andExpect(status().is(200))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.href", Is.is("/v1/sms/id")));
     }
 }

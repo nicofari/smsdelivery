@@ -26,7 +26,7 @@ public class SmsController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     public ResponseEntity<ResponseDto> createSms(@Valid @RequestBody Sms sms) {
-        return ResponseEntity.ok().body(new ResponseDto("", null));
+        return ResponseEntity.ok().body(new ResponseDto("/v1/sms/id", null));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

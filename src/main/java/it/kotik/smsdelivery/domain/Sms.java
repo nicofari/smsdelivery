@@ -18,5 +18,6 @@ public class Sms {
     public String destNumber;
 
     @NotBlank(message = "Body is required")
+    @BodyConstraint
     public String body;
 }
