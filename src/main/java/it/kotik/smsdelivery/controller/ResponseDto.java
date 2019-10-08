@@ -1,5 +1,8 @@
 package it.kotik.smsdelivery.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseDto {
     private final String href;
     private final String errorMsg;

@@ -1,9 +1,14 @@
 package it.kotik.smsdelivery.repository;
 
 import it.kotik.smsdelivery.domain.Sms;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
-public interface SmsRepository extends CrudRepository<Sms, Long> {
+public interface SmsRepository extends JpaRepository<Sms, UUID> {
+    Sms save(Sms sms);
+    Optional<Sms> findById(UUID id);
 }

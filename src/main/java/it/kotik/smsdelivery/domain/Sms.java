@@ -1,23 +1,31 @@
 package it.kotik.smsdelivery.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import java.util.UUID;
 
 @Entity
 public class Sms {
 
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    public String getIdAsString() {
+        return id.toString();
+    }
+
     @NotBlank(message = "UserId is required")
     public String userId;
 
-    @NotBlank(message = "Source number is required")
     @PhoneNumberConstraint
     public String sourceNumber;
 
-    @NotBlank(message = "Destination number is required")
     @PhoneNumberConstraint
     public String destNumber;
 
-    @NotBlank(message = "Body is required")
     @BodyConstraint
     public String body;
 }

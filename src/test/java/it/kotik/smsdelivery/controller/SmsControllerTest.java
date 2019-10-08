@@ -1,9 +1,11 @@
 package it.kotik.smsdelivery.controller;
 
+import it.kotik.smsdelivery.domain.Sms;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.internal.util.StringUtil.join;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,9 +45,9 @@ public class SmsControllerTest {
 
         mockMvc.perform(builder)
                 .andExpect(status().is(400))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Body is required")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.destNumber", Is.is("Destination number is required")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.sourceNumber", Is.is("Source number is required")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.body", Is.is("Invalid body")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.destNumber", Is.is("Invalid phone number")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.sourceNumber", Is.is("Invalid phone number")));
     }
 
     @Test
@@ -83,6 +87,10 @@ public class SmsControllerTest {
 
     @Test
     public void should_create_sms_as_expected() throws Exception {
+        Sms sms = mock(Sms.class);
+        given(sms.getIdAsString()).willReturn("00000000-0000-0000-0000-000000000010");
+        given(smsRepository.save(ArgumentMatchers.any(Sms.class))).willReturn(sms);
+
         RequestBuilder builder = post("/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -95,6 +103,6 @@ public class SmsControllerTest {
 
         mockMvc.perform(builder)
                 .andExpect(status().is(200))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.href", Is.is("/v1/sms/id")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.href", Is.is("/v1/sms/00000000-0000-0000-0000-000000000010")));
     }
 }
