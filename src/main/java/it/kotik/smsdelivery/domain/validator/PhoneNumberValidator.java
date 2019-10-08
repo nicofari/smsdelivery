@@ -1,4 +1,4 @@
-package it.kotik.smsdelivery.domain;
+package it.kotik.smsdelivery.domain.validator;
 
 import org.apache.logging.log4j.util.Strings;
 

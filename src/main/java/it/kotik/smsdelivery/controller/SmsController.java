@@ -1,6 +1,7 @@
 package it.kotik.smsdelivery.controller;
 
 import it.kotik.smsdelivery.domain.Sms;
+import it.kotik.smsdelivery.domain.SmsState;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,10 +58,28 @@ public class SmsController {
     public ResponseEntity<?> getSms(@PathVariable UUID id) {
         Optional<Sms> sms = smsRepository.findById(id);
         if (sms.isPresent()) {
-            return ok()
-                    .body(sms);
+            return ok().body(sms);
         } else {
             return notFound().build();
+        }
+    }
+
+    @PutMapping(
+            path = "v1/sms/{id}/send",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
+    )
+    public ResponseEntity<String> sendSms(@PathVariable UUID id) {
+        Optional<Sms> sms = smsRepository.findById(id);
+        if (!sms.isPresent()) {
+            return notFound().build();
+        }
+        Sms actual = sms.get();
+        if (actual.getState() != SmsState.ACCEPTED) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        } else {
+            actual.setState(SmsState.CONFIRMED);
+            smsRepository.save(actual);
+            return ResponseEntity.ok().build();
         }
     }
 }

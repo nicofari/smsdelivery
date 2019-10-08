@@ -1,5 +1,8 @@
 package it.kotik.smsdelivery.domain;
 
+import it.kotik.smsdelivery.domain.validator.BodyConstraint;
+import it.kotik.smsdelivery.domain.validator.PhoneNumberConstraint;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -8,6 +11,14 @@ import java.util.UUID;
 
 @Entity
 public class Sms {
+    public Sms() {}
+
+    public Sms(@NotBlank(message = "UserId is required") String userId, String sourceNumber, String destNumber, String body) {
+        this.userId = userId;
+        this.sourceNumber = sourceNumber;
+        this.destNumber = destNumber;
+        this.body = body;
+    }
 
     @Id
     @GeneratedValue
@@ -18,14 +29,41 @@ public class Sms {
     }
 
     @NotBlank(message = "UserId is required")
-    public String userId;
+    private String userId;
+
+    public String getUserId() {
+        return userId;
+    }
 
     @PhoneNumberConstraint
-    public String sourceNumber;
+    private String sourceNumber;
+
+    public String getSourceNumber() {
+        return sourceNumber;
+    }
 
     @PhoneNumberConstraint
-    public String destNumber;
+    private String destNumber;
+
+    public String getDestNumber() {
+        return destNumber;
+    }
 
     @BodyConstraint
-    public String body;
+    private String body;
+
+    public String getBody() {
+        return body;
+    }
+
+    private SmsState state = SmsState.ACCEPTED;
+
+    public SmsState getState() {
+        return state;
+    }
+
+    public void setState(SmsState state) {
+        this.state = state;
+    }
+
 }

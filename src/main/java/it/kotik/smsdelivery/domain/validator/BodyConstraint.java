@@ -1,15 +1,15 @@
-package it.kotik.smsdelivery.domain;
+package it.kotik.smsdelivery.domain.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = PhoneNumberValidator.class)
+@Constraint(validatedBy = BodyValidator.class)
 @Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PhoneNumberConstraint {
-    String message() default "Invalid phone number";
+public @interface BodyConstraint {
+    String message() default "Invalid body";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
