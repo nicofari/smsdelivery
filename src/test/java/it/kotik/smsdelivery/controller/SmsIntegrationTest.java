@@ -3,7 +3,6 @@ package it.kotik.smsdelivery.controller;
 import com.jayway.jsonpath.JsonPath;
 import it.kotik.smsdelivery.Main;
 import it.kotik.smsdelivery.domain.Sms;
-import it.kotik.smsdelivery.domain.SmsState;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,14 +56,14 @@ public class SmsIntegrationTest {
 
     private RequestBuilder getSmsCreateRequest() {
         return post("/v1/sms/create")
-                    .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-                    .content(join("{",
-                            "\"userId\": \"userId\",",
-                            "\"sourceNumber\": \"+00117561791\",",
-                            "\"destNumber\": \"+00216851750\", ",
-                            "\"body\": \"test Ω\"",
-                            "}"));
+                .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                .content(join("{",
+                        "\"userId\": \"userId\",",
+                        "\"sourceNumber\": \"+00117561791\",",
+                        "\"destNumber\": \"+00216851750\", ",
+                        "\"body\": \"test Ω\"",
+                        "}"));
     }
 
     @Test
@@ -84,11 +83,37 @@ public class SmsIntegrationTest {
 
     @Test
     public void send_sms_should_fail() throws Exception {
-        Sms persistedSms = smsRepository.save(new Sms("userId", "+00116851750", "+00217561791", "some text"));
-        persistedSms.setState(SmsState.CONFIRMED);
-        smsRepository.save(persistedSms);
+        Sms sms = createSms();
+        confirmSms(sms);
 
-        mockMvc.perform(put("/v1/sms/" + persistedSms.getIdAsString() + "/send"))
+        mockMvc.perform(put("/v1/sms/" + sms.getIdAsString() + "/send"))
                 .andExpect(status().isUnprocessableEntity());
     }
+
+    private void confirmSms(Sms sms) {
+        sms.confirm();
+        smsRepository.save(sms);
+    }
+
+    private Sms createSms() {
+        return smsRepository.save(new Sms("userId", "+00116851750", "+00217561791", "some text"));
+    }
+
+    @Test
+    public void should_delete_sms() throws Exception {
+        Sms sms = createSms();
+
+        mockMvc.perform(delete("/v1/sms/" + sms.getIdAsString()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void should_fail_delete_sms() throws Exception {
+        Sms sms = createSms();
+        confirmSms(sms);
+
+        mockMvc.perform(delete("/v1/sms/" + sms.getIdAsString()))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
 }

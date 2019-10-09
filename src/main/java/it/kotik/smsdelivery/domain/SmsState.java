@@ -1,5 +1,7 @@
 package it.kotik.smsdelivery.domain;
 
+import java.util.EnumSet;
+
 public enum SmsState {
     VERIFICATION_PENDING,
     ACCEPTED,
@@ -7,5 +9,9 @@ public enum SmsState {
     CONFIRMED,
     SENT,
     DELIVERED,
-    BOUNCED
+    BOUNCED;
+
+    public static EnumSet<SmsState> deletableStates() {
+        return EnumSet.of(VERIFICATION_PENDING, ACCEPTED, REFUSED);
+    }
 }

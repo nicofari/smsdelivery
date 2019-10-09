@@ -66,4 +66,15 @@ public class Sms {
         this.state = state;
     }
 
+    public boolean isDeletable() {
+        return SmsState.deletableStates().contains(state);
+    }
+
+    public void confirm() {
+        state = SmsState.CONFIRMED;
+    }
+
+    public boolean isAccepted() {
+        return state == SmsState.ACCEPTED;
+    }
 }

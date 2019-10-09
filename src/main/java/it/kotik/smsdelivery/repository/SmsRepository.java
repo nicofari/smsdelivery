@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface SmsRepository extends JpaRepository<Sms, UUID> {
     Sms save(Sms sms);
     Optional<Sms> findById(UUID id);
+    void delete(Sms sms);
 }

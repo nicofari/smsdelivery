@@ -15,8 +15,8 @@ public class ResponseDto {
         return errorMsg;
     }
 
-    public ResponseDto(String href, String errorMsg) {
-        this.href = href;
-        this.errorMsg = errorMsg;
+    public ResponseDto(String smsId) {
+        this.href = "/v1/sms/" + smsId;
+        this.errorMsg = null;
     }
 }

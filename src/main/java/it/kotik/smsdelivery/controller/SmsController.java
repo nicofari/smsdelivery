@@ -1,7 +1,6 @@
 package it.kotik.smsdelivery.controller;
 
 import it.kotik.smsdelivery.domain.Sms;
-import it.kotik.smsdelivery.domain.SmsState;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.http.ResponseEntity.notFound;
-import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 public class SmsController {
@@ -28,15 +26,53 @@ public class SmsController {
     SmsRepository smsRepository;
 
     @Transactional
-    @PostMapping(
-            path = "/v1/sms/create",
-            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
-    )
+    @PostMapping(path = "/v1/sms/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<ResponseDto> createSms(@Valid @RequestBody Sms sms) {
         Sms persistedSms = smsRepository.save(sms);
-        return ok()
-                .body(new ResponseDto("/v1/sms/" + persistedSms.getIdAsString(), null));
+        return ok().body(new ResponseDto(persistedSms.getIdAsString()));
+    }
+
+    @GetMapping(path = "/v1/sms/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<?> getSms(@PathVariable UUID id) {
+        Optional<Sms> sms = smsRepository.findById(id);
+        if (sms.isPresent()) {
+            return ok().body(sms);
+        } else {
+            return notFound().build();
+        }
+    }
+
+    @Transactional
+    @PutMapping(path = "/v1/sms/{id}/send")
+    public ResponseEntity<String> sendSms(@PathVariable UUID id) {
+        Optional<Sms> sms = smsRepository.findById(id);
+        if (!sms.isPresent()) {
+            return notFound().build();
+        }
+        Sms actual = sms.get();
+        if (!actual.isAccepted()) {
+            return unprocessableEntity().build();
+        } else {
+            actual.confirm();
+            smsRepository.save(actual);
+            return ok().build();
+        }
+    }
+
+    @Transactional
+    @DeleteMapping(path = "/v1/sms/{id}")
+    public ResponseEntity<?> deleteSms(@PathVariable UUID id) {
+        Optional<Sms> sms = smsRepository.findById(id);
+        if (!sms.isPresent()) {
+            return notFound().build();
+        }
+        Sms actual = sms.get();
+        if (!actual.isDeletable()) {
+            return unprocessableEntity().build();
+        } else {
+            smsRepository.delete(actual);
+            return ok().build();
+        }
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -49,37 +85,5 @@ public class SmsController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
-    }
-
-    @GetMapping(
-            path = "v1/sms/{id}",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
-    )
-    public ResponseEntity<?> getSms(@PathVariable UUID id) {
-        Optional<Sms> sms = smsRepository.findById(id);
-        if (sms.isPresent()) {
-            return ok().body(sms);
-        } else {
-            return notFound().build();
-        }
-    }
-
-    @PutMapping(
-            path = "v1/sms/{id}/send",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE
-    )
-    public ResponseEntity<String> sendSms(@PathVariable UUID id) {
-        Optional<Sms> sms = smsRepository.findById(id);
-        if (!sms.isPresent()) {
-            return notFound().build();
-        }
-        Sms actual = sms.get();
-        if (actual.getState() != SmsState.ACCEPTED) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
-        } else {
-            actual.setState(SmsState.CONFIRMED);
-            smsRepository.save(actual);
-            return ResponseEntity.ok().build();
-        }
     }
 }
