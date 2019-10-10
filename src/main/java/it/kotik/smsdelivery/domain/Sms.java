@@ -1,6 +1,8 @@
 package it.kotik.smsdelivery.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.kotik.smsdelivery.domain.validator.BodyConstraint;
 import it.kotik.smsdelivery.domain.validator.PhoneNumberConstraint;
 
@@ -8,9 +10,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Sms {
     public Sms() {}
 
@@ -75,10 +79,38 @@ public class Sms {
 
     public void confirm() {
         state = SmsState.CONFIRMED;
+        confirmedDate = LocalDateTime.now();
     }
 
     @JsonIgnore
     public boolean isAccepted() {
         return state == SmsState.ACCEPTED;
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+    private LocalDateTime receptionDate = LocalDateTime.now();
+
+    public LocalDateTime getReceptionDate() {
+        return receptionDate;
+    }
+
+    private LocalDateTime sentDate;
+
+    public LocalDateTime getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(LocalDateTime sentDate) {
+        this.sentDate = sentDate;
+    }
+
+    private LocalDateTime confirmedDate;
+
+    public LocalDateTime getConfirmedDate() {
+        return confirmedDate;
+    }
+
+    public void setConfirmedDate(LocalDateTime confirmedDate) {
+        this.confirmedDate = confirmedDate;
     }
 }

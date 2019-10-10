@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import it.kotik.smsdelivery.Main;
 import it.kotik.smsdelivery.domain.Sms;
 import it.kotik.smsdelivery.repository.SmsRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,11 @@ public class SmsControllerIntegrationTest {
 
     @Autowired
     private SmsRepository smsRepository;
+
+    @Before
+    public void before() {
+        smsRepository.deleteAll();
+    }
 
     @Test
     public void should_create_and_get_sms() throws Exception {
