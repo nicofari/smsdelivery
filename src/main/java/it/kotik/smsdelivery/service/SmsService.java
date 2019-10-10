@@ -3,6 +3,8 @@ package it.kotik.smsdelivery.service;
 import it.kotik.smsdelivery.domain.Sms;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,4 +28,8 @@ public class SmsService {
         smsRepository.delete(sms);
     }
 
+    public Page<Sms> findAll(long offset, int limit) {
+        OffsetBasedPageRequest pageRequest = new OffsetBasedPageRequest(offset, limit, new Sort(Sort.DEFAULT_DIRECTION, "body"));
+        return smsRepository.findAll(pageRequest);
+    }
 }
