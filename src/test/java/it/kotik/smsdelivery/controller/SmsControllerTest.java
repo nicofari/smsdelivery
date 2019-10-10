@@ -1,7 +1,7 @@
 package it.kotik.smsdelivery.controller;
 
 import it.kotik.smsdelivery.domain.Sms;
-import it.kotik.smsdelivery.repository.SmsRepository;
+import it.kotik.smsdelivery.service.SmsService;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +29,7 @@ public class SmsControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    SmsRepository smsRepository;
+    SmsService smsService;
 
     @Test
     public void should_check_required_fields() throws Exception {
@@ -89,7 +89,7 @@ public class SmsControllerTest {
     public void should_create_sms_as_expected() throws Exception {
         Sms sms = mock(Sms.class);
         given(sms.getIdAsString()).willReturn("00000000-0000-0000-0000-000000000010");
-        given(smsRepository.save(ArgumentMatchers.any(Sms.class))).willReturn(sms);
+        given(smsService.save(ArgumentMatchers.any(Sms.class))).willReturn(sms);
 
         RequestBuilder builder = post("/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
