@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -24,11 +23,10 @@ public class SmsServiceIntegrationTest {
     public void should_paginate() {
         List<Sms> smsList = buildList(10);
 
-        Page<Sms> actual = smsService.findAll(9, 2);
+        List<Sms> actual = smsService.findAll(8, 2);
 
-        assertThat(actual.getSize()).isEqualTo(2);
-        assertThat(actual.get().findFirst().isPresent());
-        assertThat(actual.get().findFirst().get().getBody().equals("9"));
+        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual.get(0).getBody().equals("9"));
     }
 
     private List<Sms> buildList(int size) {

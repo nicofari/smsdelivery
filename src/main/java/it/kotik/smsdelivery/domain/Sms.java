@@ -1,5 +1,6 @@
 package it.kotik.smsdelivery.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.kotik.smsdelivery.domain.validator.BodyConstraint;
 import it.kotik.smsdelivery.domain.validator.PhoneNumberConstraint;
 
@@ -24,6 +25,7 @@ public class Sms {
     @GeneratedValue
     private UUID id;
 
+    @JsonIgnore
     public String getIdAsString() {
         return id.toString();
     }
@@ -66,6 +68,7 @@ public class Sms {
         this.state = state;
     }
 
+    @JsonIgnore
     public boolean isDeletable() {
         return SmsState.deletableStates().contains(state);
     }
@@ -74,6 +77,7 @@ public class Sms {
         state = SmsState.CONFIRMED;
     }
 
+    @JsonIgnore
     public boolean isAccepted() {
         return state == SmsState.ACCEPTED;
     }

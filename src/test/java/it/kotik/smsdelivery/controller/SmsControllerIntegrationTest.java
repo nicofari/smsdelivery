@@ -1,5 +1,6 @@
 package it.kotik.smsdelivery.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import it.kotik.smsdelivery.Main;
 import it.kotik.smsdelivery.domain.Sms;
@@ -15,7 +16,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.internal.util.StringUtil.join;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -24,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = Main.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class SmsIntegrationTest {
+public class SmsControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -116,4 +121,31 @@ public class SmsIntegrationTest {
                 .andExpect(status().isUnprocessableEntity());
     }
 
+    @Test
+    public void should_return_paginated_results() throws Exception {
+        createBatch(10);
+
+        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?limit=2&offset=8"))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Sms> actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
+        assertThat(actual.size()).isEqualTo(2);
+
+        mvcResult = mockMvc.perform(get("/v1/sms?limit=18&offset=0"))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
+        assertThat(actual.size()).isEqualTo(10);
+    }
+
+    private void createBatch(int size) {
+        for (int i = 0; i < size; i++) {
+            createSms();
+        }
+    }
 }

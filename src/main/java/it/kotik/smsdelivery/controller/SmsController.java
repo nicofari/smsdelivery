@@ -12,10 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.ResponseEntity.*;
 
@@ -73,6 +70,11 @@ public class SmsController {
             smsService.delete(actual);
             return ok().build();
         }
+    }
+
+    @GetMapping(path = "/v1/sms", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<Sms> getAll(@RequestParam long offset, @RequestParam int limit) {
+        return smsService.findAll(offset, limit);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
