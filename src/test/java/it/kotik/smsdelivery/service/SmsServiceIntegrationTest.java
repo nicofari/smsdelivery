@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -20,25 +21,28 @@ public class SmsServiceIntegrationTest {
     SmsService smsService;
 
     @Test
-    public void should_paginate() {
-        List<Sms> smsList = buildList(10);
+    public void should_paginate_and_sort() {
+        List<Sms> smsList = buildSmsList(10, LocalDateTime.of(3000, 1, 1, 22, 0));
 
-        List<Sms> actual = smsService.findAll(8, 2);
+        List<Sms> actual = smsService.findAll(8, 2, new String[]{"sentDate;DESC"});
 
         assertThat(actual.size()).isEqualTo(2);
-        assertThat(actual.get(0).getBody().equals("9"));
+        assertThat(actual.get(0).getBody()).isEqualTo("2");
+        assertThat(actual.get(1).getSentDate()).isEqualTo(LocalDateTime.of(3000, 1, 1, 22, 0));
     }
 
-    private List<Sms> buildList(int size) {
+    private List<Sms> buildSmsList(int size, LocalDateTime startDate) {
         List<Sms> ret = Lists.newArrayList();
         for (int i = 1; i <= size; i++) {
-            ret.add(createSms(i));
+            ret.add(createSms(i, startDate.plusDays(i - 1)));
         }
         return ret;
     }
 
-    private Sms createSms(Integer num) {
-        return smsService.save(new Sms("userId", "+00116851750", "+00217561791", num.toString()));
+    private Sms createSms(Integer num, LocalDateTime sentDate) {
+        Sms sms = new Sms("userId", "+00116851750", "+00217561791", num.toString());
+        sms.setSentDate(sentDate);
+        return smsService.save(sms);
     }
 
 

@@ -128,10 +128,10 @@ public class SmsControllerIntegrationTest {
     }
 
     @Test
-    public void should_return_paginated_results() throws Exception {
+    public void should_return_paginated_and_sorted_results() throws Exception {
         createBatch(10);
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?limit=2&offset=8"))
+        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?limit=2&offset=8&sort=receptionDate;DESC"))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
