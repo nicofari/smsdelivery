@@ -1,6 +1,5 @@
 package it.kotik.smsdelivery.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import it.kotik.smsdelivery.domain.validator.BodyConstraint;
@@ -11,12 +10,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Entity
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Sms {
-    public Sms() {}
+    public Sms() {
+    }
 
     public Sms(@NotBlank(message = "UserId is required") String userId, String sourceNumber, String destNumber, String body) {
         this.userId = userId;
@@ -77,9 +78,11 @@ public class Sms {
         return SmsState.deletableStates().contains(state);
     }
 
+    public final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
     public void confirm() {
         state = SmsState.CONFIRMED;
-        confirmedDate = LocalDateTime.now();
+        confirmedDate = LocalDateTime.now().format(DATE_TIME_FORMATTER);
     }
 
     @JsonIgnore
@@ -87,30 +90,29 @@ public class Sms {
         return state == SmsState.ACCEPTED;
     }
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    private LocalDateTime receptionDate = LocalDateTime.now();
+    private String receptionDate = LocalDateTime.now().format(DATE_TIME_FORMATTER);
 
-    public LocalDateTime getReceptionDate() {
+    public String getReceptionDate() {
         return receptionDate;
     }
 
-    private LocalDateTime sentDate;
+    private String sentDate;
 
-    public LocalDateTime getSentDate() {
+    public String getSentDate() {
         return sentDate;
     }
 
-    public void setSentDate(LocalDateTime sentDate) {
+    public void setSentDate(String sentDate) {
         this.sentDate = sentDate;
     }
 
-    private LocalDateTime confirmedDate;
+    private String confirmedDate;
 
-    public LocalDateTime getConfirmedDate() {
+    public String getConfirmedDate() {
         return confirmedDate;
     }
 
-    public void setConfirmedDate(LocalDateTime confirmedDate) {
+    public void setConfirmedDate(String confirmedDate) {
         this.confirmedDate = confirmedDate;
     }
 }

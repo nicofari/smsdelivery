@@ -74,10 +74,11 @@ public class SmsController {
 
     @GetMapping(path = "/v1/sms", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<Sms> getAll(
-            @RequestParam(value = "offset") long offset,
-            @RequestParam(value = "limit") int limit,
-            @RequestParam(value = "sort", defaultValue = "receptionDate;ASC", required = false) String[] sortBy) {
-        return smsService.findAll(offset, limit, sortBy);
+            @RequestParam(value = "offset", defaultValue = "0") long offset,
+            @RequestParam(value = "limit", defaultValue = "25") int limit,
+            @RequestParam(value = "sort", defaultValue = "receptionDate;ASC", required = false) String[] sortBy,
+            @RequestParam(value = "filter", required = false) String filter) {
+        return smsService.findAll(offset, limit, sortBy, filter);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

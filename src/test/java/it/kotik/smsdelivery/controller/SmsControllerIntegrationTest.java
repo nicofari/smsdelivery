@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -149,9 +151,32 @@ public class SmsControllerIntegrationTest {
         assertThat(actual.size()).isEqualTo(10);
     }
 
-    private void createBatch(int size) {
+    private List<Sms> createBatch(int size) {
+        List<Sms> ret = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            createSms();
+            ret.add(createSms());
         }
+        return ret;
+    }
+
+    @Test
+    public void should_filter_results() throws Exception {
+        List<Sms> db = createBatch(10);
+        setSentDate(db.get(2), "3000-01-08T22:00");
+
+        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?filter=sentDate>3000-01-01,sentDate<3000-01-10"))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Sms> actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
+
+        assertThat(actual.size()).isEqualTo(1);
+    }
+
+    private void setSentDate(Sms sms, String sentDate) {
+        sms.setSentDate(sentDate);
+        smsRepository.save(sms);
     }
 }
