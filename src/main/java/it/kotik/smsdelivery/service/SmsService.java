@@ -2,6 +2,7 @@ package it.kotik.smsdelivery.service;
 
 import it.kotik.smsdelivery.domain.Sms;
 import it.kotik.smsdelivery.repository.SmsRepository;
+import it.kotik.smsdelivery.service.paging.OffsetBasedPageRequest;
 import it.kotik.smsdelivery.service.search.SmsSearchCriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;

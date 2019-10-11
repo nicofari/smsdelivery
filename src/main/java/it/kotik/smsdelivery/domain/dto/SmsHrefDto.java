@@ -1,22 +1,16 @@
-package it.kotik.smsdelivery.controller;
+package it.kotik.smsdelivery.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResponseDto {
+public class SmsHrefDto {
     private final String href;
-    private final String errorMsg;
 
     public String getHref() {
         return href;
     }
 
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public ResponseDto(String smsId) {
+    public SmsHrefDto(String smsId) {
         this.href = "/v1/sms/" + smsId;
-        this.errorMsg = null;
     }
 }

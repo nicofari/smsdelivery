@@ -1,6 +1,7 @@
 package it.kotik.smsdelivery.controller;
 
 import it.kotik.smsdelivery.domain.Sms;
+import it.kotik.smsdelivery.domain.dto.SmsHrefDto;
 import it.kotik.smsdelivery.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,9 @@ public class SmsController {
 
     @Transactional
     @PostMapping(path = "/v1/sms/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<ResponseDto> createSms(@Valid @RequestBody Sms sms) {
-        Sms persistedSms = smsService.save(sms);
-        return ok().body(new ResponseDto(persistedSms.getIdAsString()));
+    public ResponseEntity<SmsHrefDto> createSms(@Valid @RequestBody Sms smsDto) {
+        Sms sms = smsService.save(smsDto);
+        return ok().body(new SmsHrefDto(sms.getIdAsString()));
     }
 
     @GetMapping(path = "/v1/sms/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -42,16 +43,16 @@ public class SmsController {
     @Transactional
     @PutMapping(path = "/v1/sms/{id}/send")
     public ResponseEntity<String> sendSms(@PathVariable UUID id) {
-        Optional<Sms> sms = smsService.findById(id);
-        if (!sms.isPresent()) {
+        Optional<Sms> optSms = smsService.findById(id);
+        if (!optSms.isPresent()) {
             return notFound().build();
         }
-        Sms actual = sms.get();
-        if (!actual.isAccepted()) {
+        Sms sms = optSms.get();
+        if (!sms.isAccepted()) {
             return unprocessableEntity().build();
         } else {
-            actual.confirm();
-            smsService.save(actual);
+            sms.confirm();
+            smsService.save(sms);
             return ok().build();
         }
     }
@@ -59,15 +60,15 @@ public class SmsController {
     @Transactional
     @DeleteMapping(path = "/v1/sms/{id}")
     public ResponseEntity<?> deleteSms(@PathVariable UUID id) {
-        Optional<Sms> sms = smsService.findById(id);
-        if (!sms.isPresent()) {
+        Optional<Sms> optSms = smsService.findById(id);
+        if (!optSms.isPresent()) {
             return notFound().build();
         }
-        Sms actual = sms.get();
-        if (!actual.isDeletable()) {
+        Sms sms = optSms.get();
+        if (!sms.isDeletable()) {
             return unprocessableEntity().build();
         } else {
-            smsService.delete(actual);
+            smsService.delete(sms);
             return ok().build();
         }
     }
