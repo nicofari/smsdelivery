@@ -1,6 +1,7 @@
 package it.kotik.smsdelivery.service;
 
 import it.kotik.smsdelivery.domain.Sms;
+import it.kotik.smsdelivery.domain.dto.SmsPageDto;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,11 +25,11 @@ public class SmsServiceIntegrationTest {
     public void should_paginate_and_sort() {
         List<Sms> smsList = buildSmsList(10, LocalDateTime.of(3000, 1, 1, 22, 0));
 
-        List<Sms> actual = smsService.findAll(8, 2, new String[]{"sentDate;DESC"}, null);
+        SmsPageDto actual = smsService.findAll(8, 2, new String[]{"sentDate;DESC"}, null);
 
-        assertThat(actual.size()).isEqualTo(2);
-        assertThat(actual.get(0).getBody()).isEqualTo("2");
-        assertThat(actual.get(1).getSentDate()).isEqualTo("3000-01-01T22:00");
+        assertThat(actual.getContent().size()).isEqualTo(2);
+        assertThat(actual.getContent().get(0).getBody()).isEqualTo("2");
+        assertThat(actual.getContent().get(1).getSentDate()).isEqualTo("3000-01-01T22:00");
     }
 
     private List<Sms> buildSmsList(int size, LocalDateTime startDate) {

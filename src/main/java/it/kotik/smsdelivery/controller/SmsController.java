@@ -2,6 +2,7 @@ package it.kotik.smsdelivery.controller;
 
 import it.kotik.smsdelivery.domain.Sms;
 import it.kotik.smsdelivery.domain.dto.SmsHrefDto;
+import it.kotik.smsdelivery.domain.dto.SmsPageDto;
 import it.kotik.smsdelivery.service.SmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,24 +14,28 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController
+@RequestMapping("/public/api")
 public class SmsController {
 
     @Autowired
     SmsService smsService;
 
     @Transactional
-    @PostMapping(path = "/v1/sms/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(path = "v1/sms/create", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SmsHrefDto> createSms(@Valid @RequestBody Sms smsDto) {
         Sms sms = smsService.save(smsDto);
         return ok().body(new SmsHrefDto(sms.getIdAsString()));
     }
 
-    @GetMapping(path = "/v1/sms/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(path = "v1/sms/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> getSms(@PathVariable UUID id) {
         Optional<Sms> sms = smsService.findById(id);
         if (sms.isPresent()) {
@@ -74,7 +79,7 @@ public class SmsController {
     }
 
     @GetMapping(path = "/v1/sms", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<Sms> getAll(
+    public SmsPageDto getAll(
             @RequestParam(value = "offset", defaultValue = "0") long offset,
             @RequestParam(value = "limit", defaultValue = "25") int limit,
             @RequestParam(value = "sort", defaultValue = "receptionDate;ASC", required = false) String[] sortBy,

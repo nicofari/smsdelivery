@@ -33,7 +33,7 @@ public class SmsControllerTest {
 
     @Test
     public void should_check_required_fields() throws Exception {
-        RequestBuilder builder = post("/v1/sms/create")
+        RequestBuilder builder = post("/public/api/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
@@ -52,7 +52,7 @@ public class SmsControllerTest {
 
     @Test
     public void should_check_numbers() throws Exception {
-        RequestBuilder builder = post("/v1/sms/create")
+        RequestBuilder builder = post("/public/api/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
@@ -70,7 +70,7 @@ public class SmsControllerTest {
 
     @Test
     public void should_check_body() throws Exception {
-        RequestBuilder builder = post("/v1/sms/create")
+        RequestBuilder builder = post("/public/api/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
@@ -91,7 +91,7 @@ public class SmsControllerTest {
         given(sms.getIdAsString()).willReturn("00000000-0000-0000-0000-000000000010");
         given(smsService.save(ArgumentMatchers.any(Sms.class))).willReturn(sms);
 
-        RequestBuilder builder = post("/v1/sms/create")
+        RequestBuilder builder = post("/public/api/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
@@ -103,6 +103,6 @@ public class SmsControllerTest {
 
         mockMvc.perform(builder)
                 .andExpect(status().is(200))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.href", Is.is("/v1/sms/00000000-0000-0000-0000-000000000010")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.href", Is.is("/public/api/v1/sms/00000000-0000-0000-0000-000000000010")));
     }
 }

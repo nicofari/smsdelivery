@@ -11,6 +11,6 @@ public class SmsHrefDto {
     }
 
     public SmsHrefDto(String smsId) {
-        this.href = "/v1/sms/" + smsId;
+        this.href = "/public/api/v1/sms/" + smsId;
     }
 }

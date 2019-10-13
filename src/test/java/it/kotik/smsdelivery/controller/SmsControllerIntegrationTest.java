@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import it.kotik.smsdelivery.Main;
 import it.kotik.smsdelivery.domain.Sms;
+import it.kotik.smsdelivery.domain.dto.SmsPageDto;
 import it.kotik.smsdelivery.repository.SmsRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class SmsControllerIntegrationTest {
     }
 
     private RequestBuilder getSmsCreateRequest() {
-        return post("/v1/sms/create")
+        return post("/public/api/v1/sms/create")
                 .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 .content(join("{",
@@ -99,7 +99,7 @@ public class SmsControllerIntegrationTest {
         Sms sms = createSms();
         confirmSms(sms);
 
-        mockMvc.perform(put("/v1/sms/" + sms.getIdAsString() + "/send"))
+        mockMvc.perform(put("/public/api/v1/sms/" + sms.getIdAsString() + "/send"))
                 .andExpect(status().isUnprocessableEntity());
     }
 
@@ -116,7 +116,7 @@ public class SmsControllerIntegrationTest {
     public void should_delete_sms() throws Exception {
         Sms sms = createSms();
 
-        mockMvc.perform(delete("/v1/sms/" + sms.getIdAsString()))
+        mockMvc.perform(delete("/public/api/v1/sms/" + sms.getIdAsString()))
                 .andExpect(status().isOk());
     }
 
@@ -125,7 +125,7 @@ public class SmsControllerIntegrationTest {
         Sms sms = createSms();
         confirmSms(sms);
 
-        mockMvc.perform(delete("/v1/sms/" + sms.getIdAsString()))
+        mockMvc.perform(delete("/public/api/v1/sms/" + sms.getIdAsString()))
                 .andExpect(status().isUnprocessableEntity());
     }
 
@@ -133,22 +133,22 @@ public class SmsControllerIntegrationTest {
     public void should_return_paginated_and_sorted_results() throws Exception {
         createBatch(10);
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?limit=2&offset=8&sort=receptionDate;DESC"))
+        MvcResult mvcResult = mockMvc.perform(get("/public/api/v1/sms?limit=2&offset=8&sort=receptionDate;DESC"))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
-        List<Sms> actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
-        assertThat(actual.size()).isEqualTo(2);
+        SmsPageDto actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), SmsPageDto.class);
+        assertThat(actual.getContent().size()).isEqualTo(2);
 
-        mvcResult = mockMvc.perform(get("/v1/sms?limit=18&offset=0"))
+        mvcResult = mockMvc.perform(get("/public/api/v1/sms?limit=18&offset=0"))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
-        actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
-        assertThat(actual.size()).isEqualTo(10);
+        actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), SmsPageDto.class);
+        assertThat(actual.getContent().size()).isEqualTo(10);
     }
 
     private List<Sms> createBatch(int size) {
@@ -164,15 +164,15 @@ public class SmsControllerIntegrationTest {
         List<Sms> db = createBatch(10);
         setSentDate(db.get(2), "3000-01-08T22:00");
 
-        MvcResult mvcResult = mockMvc.perform(get("/v1/sms?filter=sentDate>3000-01-01,sentDate<3000-01-10"))
+        MvcResult mvcResult = mockMvc.perform(get("/public/api/v1/sms?filter=sentDate>3000-01-01,sentDate<3000-01-10"))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print())
                 .andReturn();
 
         ObjectMapper mapper = new ObjectMapper();
-        List<Sms> actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), List.class);
+        SmsPageDto actual = mapper.readValue(mvcResult.getResponse().getContentAsString(), SmsPageDto.class);
 
-        assertThat(actual.size()).isEqualTo(1);
+        assertThat(actual.getContent().size()).isEqualTo(1);
     }
 
     private void setSentDate(Sms sms, String sentDate) {
