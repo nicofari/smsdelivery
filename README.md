@@ -5,20 +5,21 @@
 * Maven 3.2 or later
 ### Framework
 * Spring Boot 2.1.8
+* H2 in-memory database
 ### Building and running
 * clone this git repo
 
 * to build the application and run the tests:
 ```
-mvn clean package
+./mvnw clean package
 ```
 * for starting the application
 ```
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 Default port is 8080 to specify a different port use the syntax:
 ```
-mvn spring-boot:run -Dserver.port=9090
+./mvnw spring-boot:run -Dserver.port=9090
 ```
 ### API documentation
 
@@ -32,10 +33,10 @@ Request
 * Body (example):
 ```
 {
-  userId: "user",
-  sourceNumber: "+00123456890",
-  destNumber: "+00123456890",
-  body: "message body"
+  "userId": "user",
+  "sourceNumber": "+00123456890",
+  "destNumber": "+00123456890",
+  "body": "message body"
 }
 ```
 
@@ -45,8 +46,18 @@ Response:
 * Body if successful (example):
 ```
 {
-  href: "/public/api/sms/301d401a-e9fe-46ad-88db-5e225b224506"
+  "href": "/public/api/sms/301d401a-e9fe-46ad-88db-5e225b224506"
 }
+```
+
+Example request:
+```
+curl -X POST -H "Content-Type: application/json" -d "{\"userId\": \"newtestuser\", \"body\": \"test\", \"sourceNumber\": \"+00117561791\", \"destNumber\": \"+00116851750\"}" "http://localhost:8083/public/api/v1/sms/create"
+```
+
+Example response:
+```
+{"href":"/public/api/v1/sms/8210141d-d3a7-43d0-b4ae-8bac9fe1871b"}
 ```
 #### Get Sms
 Request
@@ -59,10 +70,10 @@ Response:
 * Body if successful (example):
 ```
 {
-  userId: "user",
-  sourceNumber: "+00123456890",
-  destNumber: "+00123456890",
-  body: "message body",
+  "userId": "user",
+  "sourceNumber": "+00123456890",
+  "destNumber": "+00123456890",
+  "body": "message body",
   ...
 }
 ```
@@ -113,7 +124,29 @@ Supported operators are
 * \> greater than or equal to 
 * : like
 
+Response
+```
+{
+    "content": [
+        {"userId":"userId","sourceNumber":"+00116851750","destNumber":"+00217561791","body":"some text","state":"ACCEPTED","receptionDate":"2019-10-14T08:54","sentDate":"3000-01-08T22:00"},
+        {"userId":"userId","sourceNumber":"+00116851750","destNumber":"+00217561791","body":"some text","state":"ACCEPTED","receptionDate":"2019-10-14T08:54","sentDate":"3000-01-08T22:00"},
+        ..
+    ],
+    "next":"http://localhost/public/api/v1/sms?filter=sentDate%3E3000-01-01,sentDate%3C3000-01-10&offset=50&limit=25"],
+    "prev": "http://localhost/public/api/v1/sms?filter=sentDate%3E3000-01-01,sentDate%3C3000-01-10&offset=0&limit=25"",
+}
+```
 
+### Docker image
+Build a docker image running the command:
+```
+./mvnw install dockerfile:build
+```
 
+The default image name is "kotik/smsdelivery"
+To run the image is the command (port number is just an example):
+```
+docker run -p 8082:8082 -t kotik/smsdelivery
+```
 
 
