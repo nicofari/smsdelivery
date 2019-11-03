@@ -148,5 +148,14 @@ To run the image is the command (port number is just an example):
 ```
 docker run -p 8082:8082 -t kotik/smsdelivery
 ```
-
-
+#### NB
+After a test on a kubuntu machine at home I had to make these steps, you _may_ need too:
+1. after cloning the repo I had to issue a chmod to use the embedded maven:
+```
+$ chmod +x ./mvnw
+```
+2. trying to generate the docker image I got a "java.io.IOException" trying to connect to http://localhost:80.
+After a quick google search I found that this could (maybe obviously) depend on lack of permissions, so I found that I had to run the build command as root:
+```
+sudo ./mvnw install dockerfile:build
+```
